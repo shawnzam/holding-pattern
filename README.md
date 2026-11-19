@@ -2,6 +2,8 @@
 
 https://holdingpattern.dev
 
+![Holding Pattern: the radar scope on the left, the MyTower.js editor on the right, the flight schedule and console below](docs/screenshot.webp)
+
 A browser programming game modelled on a late-1990s university assignment. You write a
 JavaScript class, `MyTower`, that runs an airport control tower. A simulation flies the
 airplanes on a radar scope; your code decides who lands, who takes off and who waits.
