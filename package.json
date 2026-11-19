@@ -1,0 +1,21 @@
+{
+  "name": "holding-pattern",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Holding Pattern: an air traffic control programming game",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node test/run.js",
+    "build": "node scripts/build-site.mjs",
+    "dev:cf": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.162.0"
+  }
+}

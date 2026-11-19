@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holding Pattern</title>
+<meta name="description" content="A programming game: write the code for an air traffic control tower. Scored on collisions, delay and fuel.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Holding Pattern">
+<meta property="og:title" content="Holding Pattern">
+<meta property="og:description" content="A programming game: write the code for an air traffic control tower. Scored on collisions, delay and fuel.">
+<meta property="og:url" content="https://holdingpattern.dev/">
+<meta property="og:image" content="https://holdingpattern.dev/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Holding Pattern: a radar scope and the words Write the code for an air traffic control tower.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Holding Pattern">
+<meta name="twitter:description" content="A programming game: write the code for an air traffic control tower.">
+<meta name="twitter:image" content="https://holdingpattern.dev/og.png">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PDVNPWNZ');</script>
+<!-- End Google Tag Manager -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
+<link rel="stylesheet" href="css/metal.css">
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PDVNPWNZ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<div class="page">
+
+  <div class="applet" id="applet">
+
+    <div class="menubar" id="menubar">
+      <div class="menu">
+        <button type="button" aria-haspopup="true">File</button>
+        <div class="menu-items">
+          <button type="button" data-cmd="format"><span>Format code</span><span class="accel">Shift+Alt+F</span></button>
+          <button type="button" data-cmd="comment"><span>Comment lines in or out</span><span class="accel">Cmd+/</span></button>
+          <hr>
+          <button type="button" data-cmd="import">Import code from previous assignment</button>
+          <button type="button" data-cmd="resetCode">Reset code to starter</button>
+        </div>
+      </div>
+      <div class="menu">
+        <button type="button" aria-haspopup="true">Run</button>
+        <div class="menu-items">
+          <button type="button" data-cmd="run"><span>Run</span><span class="accel">Ctrl+Enter</span></button>
+          <button type="button" data-cmd="pause">Pause</button>
+          <button type="button" data-cmd="reset">Reset</button>
+          <hr>
+          <button type="button" data-cmd="clearConsole">Clear console</button>
+        </div>
+      </div>
+      <div class="menu">
+        <button type="button" aria-haspopup="true">Help</button>
+        <div class="menu-items">
+          <button type="button" data-cmd="tour">Show the tutorial</button>
+          <button type="button" data-cmd="showBrief">This assignment</button>
+          <button type="button" data-cmd="showApi">Tower API</button>
+          <button type="button" data-cmd="showCoach">Ask the coach</button>
+          <hr>
+          <button type="button" data-cmd="about">About Holding Pattern</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button type="button" class="btn go" id="btnRun"><span class="glyph">&#9654;</span><span id="btnRunLabel">Run</span></button>
+      <button type="button" class="btn" id="btnPause" disabled><span class="glyph">&#10073;&#10073;</span>Pause</button>
+      <button type="button" class="btn stop" id="btnReset" disabled><span class="glyph">&#9632;</span>Reset</button>
+      <span class="sep"></span>
+      <label>Speed
+        <select id="speed">
+          <option value="10">Slow</option>
+          <option value="30" selected>Normal</option>
+          <option value="120">Fast</option>
+          <option value="600">Warp</option>
+        </select>
+      </label>
+      <span class="sep"></span>
+      <label>Assignment <select id="level"></select></label>
+      <span id="freeBox" hidden>
+        <label>Seed <input type="text" id="seed" value="tower" maxlength="24" spellcheck="false"></label>
+        <button type="button" class="btn" id="btnSeed">Generate</button>
+      </span>
+    </div>
+
+    <div class="desktop">
+      <div class="col">
+        <section class="iframe radar-frame">
+          <div class="titlebar"><span class="ico"></span><span class="ttl" id="radarTitle">Radar</span><span class="grip"></span><span class="wbtn min"></span><span class="wbtn max"></span></div>
+          <div class="fbody">
+            <div class="radar-wrap"><canvas id="radar" width="720" height="480"></canvas></div>
+            <div class="stats">
+              <div class="stat"><span>Clock</span><b id="stTime">T+00:00</b></div>
+              <div class="stat"><span>Landed</span><b id="stLanded">0/0</b></div>
+              <div class="stat"><span>Departed</span><b id="stDeparted">0/0</b></div>
+              <div class="stat" id="stCollBox"><span>Collisions</span><b id="stColl">0</b></div>
+              <div class="stat"><span>Delay</span><b id="stDelay">0:00</b></div>
+              <div class="stat"><span>Fuel</span><b id="stFuel">0 kg</b></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="iframe strips-frame">
+          <div class="titlebar"><span class="ico"></span><span class="ttl">Flight Schedule</span><span class="grip"></span><span class="wbtn min"></span><span class="wbtn max"></span></div>
+          <div class="fbody">
+            <div class="tablewrap">
+              <table class="strips">
+                <thead><tr><th>Flight</th><th>Type</th><th>Fix</th><th>Scheduled</th><th>Status</th><th>Delay</th></tr></thead>
+                <tbody id="strips"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col">
+        <section class="iframe editor-frame">
+          <div class="titlebar"><span class="ico"></span><span class="ttl" id="editorTitle">MyTower.js</span><span class="grip"></span><span class="wbtn min"></span><span class="wbtn max"></span></div>
+          <div class="fbody">
+            <div class="tabs" role="tablist">
+              <button type="button" class="tab" role="tab" data-tab="code" aria-selected="true">MyTower.js</button>
+              <button type="button" class="tab" role="tab" data-tab="brief" aria-selected="false">Assignment</button>
+              <button type="button" class="tab" role="tab" data-tab="api" aria-selected="false">API</button>
+              <button type="button" class="btn tabs-end" id="btnFormat" title="Tidy the layout of your code (Shift+Alt+F)">Format code</button>
+            </div>
+            <div class="tabpanes">
+              <div class="pane active" id="pane-code"><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div>
+              <div class="pane doc" id="pane-brief"></div>
+              <div class="pane doc" id="pane-api">
+                <h3>Tower API</h3>
+                <p>Your file must define <code>class MyTower extends Tower</code>. The simulation calls
+                your methods; you answer by calling methods on the airplanes. One tick is one simulated second.</p>
+
+                <h4>Methods you implement</h4>
+                <table>
+                  <tr><td>onStart(world)</td><td>Once, before the first airplane appears.</td></tr>
+                  <tr><td>onArrival(plane, world)</td><td>An arrival has entered the airspace.</td></tr>
+                  <tr><td>onDepartureReady(plane, world)</td><td>A departure is ready at the gate.</td></tr>
+                  <tr><td>onTick(world)</td><td>Every simulated second.</td></tr>
+                  <tr><td>onConflict(a, b, world)</td><td>Two airplanes have just collided. For debugging.</td></tr>
+                </table>
+
+                <h4>Commands</h4>
+                <table>
+                  <tr><td>plane.clearToLand()</td><td>Arrival may continue past FINAL and land.</td></tr>
+                  <tr><td>plane.clearForTakeoff()</td><td>Departure enters the runway and goes.</td></tr>
+                  <tr><td>plane.hold()</td><td>Circle at the present position. One circle takes 60 seconds.</td></tr>
+                  <tr><td>plane.resume()</td><td>Stop circling, drop any detour, and carry on along the route.</td></tr>
+                  <tr><td>plane.flyTo(x, y)</td><td>Detour to a point, then rejoin the route by itself. Also takes a point,
+                    for example <code>plane.flyTo(world.fixes.BASEN)</code>. Calling it again replaces the detour.
+                    Works in the air, before the FINAL fix is passed.</td></tr>
+                  <tr><td>plane.setSpeed(knots)</td><td>160 to 220. The default, 220, is also the top speed, so this only slows an airplane down.</td></tr>
+                </table>
+
+                <h4>Reading an airplane</h4>
+                <table>
+                  <tr><td>plane.id</td><td>Callsign, for example <code>"JVA101"</code>.</td></tr>
+                  <tr><td>plane.kind</td><td><code>"arrival"</code> or <code>"departure"</code>.</td></tr>
+                  <tr><td>plane.state</td><td>Arrivals: <code>inbound</code>, <code>holding</code>, <code>final</code>, <code>landing</code>.
+                    Departures: <code>gate</code>, <code>takeoff</code>, <code>outbound</code>, <code>holding</code>.</td></tr>
+                  <tr><td>plane.x, plane.y</td><td>Position in nautical miles. (0, 0) is the top left; the map is 48 by 32.</td></tr>
+                  <tr><td>plane.heading</td><td>Compass degrees. 0 is north (up), 90 is east.</td></tr>
+                  <tr><td>plane.speed</td><td>Knots.</td></tr>
+                  <tr><td>plane.eta</td><td>Arrivals: seconds until touchdown at the present speed, with no holding.</td></tr>
+                  <tr><td>plane.distanceToRunway</td><td>Arrivals: miles left to fly along the route.</td></tr>
+                  <tr><td>plane.distanceTo(other)</td><td>Miles to another airplane, or to anything with <code>x</code> and <code>y</code>.</td></tr>
+                  <tr><td>plane.entry, plane.exit</td><td>Name of the fix the airplane came from or is going to.</td></tr>
+                  <tr><td>plane.target</td><td>The next point it is flying to, with <code>x</code> and <code>y</code>.</td></tr>
+                  <tr><td>plane.vector</td><td>The detour point set by <code>flyTo</code>, or <code>null</code>.
+                    <code>eta</code> and <code>distanceToRunway</code> include the detour.</td></tr>
+                  <tr><td>plane.cleared</td><td>True once it has been cleared to land or take off.</td></tr>
+                  <tr><td>plane.waited</td><td>Seconds spent at the gate or circling so far.</td></tr>
+                </table>
+                <p>The airplane objects stay the same from tick to tick, so you can keep them in arrays
+                and attach your own properties to them.</p>
+
+                <h4>Reading the world</h4>
+                <table>
+                  <tr><td>world.time</td><td>Seconds since the start.</td></tr>
+                  <tr><td>world.planes</td><td>Every airplane now in the system.</td></tr>
+                  <tr><td>world.arrivals</td><td>Just the arrivals.</td></tr>
+                  <tr><td>world.departures</td><td>Just the departures.</td></tr>
+                  <tr><td>world.waiting</td><td>Departures at the gate that are not yet cleared, oldest first.</td></tr>
+                  <tr><td>world.runway.isClear</td><td>True when nobody is on the runway.</td></tr>
+                  <tr><td>world.runway.occupiedBy</td><td>The airplane on the runway, or <code>null</code>.</td></tr>
+                  <tr><td>world.runway.threshold, .end</td><td>Where landings touch down and where takeoffs lift off.</td></tr>
+                  <tr><td>world.fixes</td><td>Named points, for example <code>world.fixes.POLAR</code>.</td></tr>
+                  <tr><td>world.finalFix</td><td>The FINAL fix, 7 miles west of the runway.</td></tr>
+                  <tr><td>world.separation</td><td>3. Closer than this in the air is a collision.</td></tr>
+                  <tr><td>world.find(id)</td><td>Look up an airplane by callsign.</td></tr>
+                </table>
+
+                <h4>Rules</h4>
+                <ul>
+                  <li>A takeoff occupies the runway for 40 seconds, a landing for 45.</li>
+                  <li>Two airplanes on the runway at once is a collision.</li>
+                  <li>Two airplanes in the air less than 3 miles apart is a collision.</li>
+                </ul>
+
+                <h4>Debugging</h4>
+                <table>
+                  <tr><td>console.log(a, b, ...)</td><td>Prints to the Console. Objects, airplanes and arrays appear
+                    with a small arrow: click it to open them. What you see is a copy taken at that moment.</td></tr>
+                  <tr><td>console.table(list)</td><td>Prints a list as a table, one row per item.</td></tr>
+                  <tr><td>console.table(list, ["id", "eta"])</td><td>The same, with only the columns you name.</td></tr>
+                </table>
+                <p>In the editor, suggestions appear as you type after a dot. Press <b>Ctrl+Space</b> to ask for them anywhere.
+                <b>Cmd+/</b> (or Ctrl+/) comments the selected lines out, or back in. <b>Format</b> in the toolbar (Shift+Alt+F) tidies the layout. A syntax error is marked on its line.</p>
+
+                <h4>Scoring (lower is better)</h4>
+                <ul>
+                  <li>1 point per second of delay, measured against the time each flight would take with the sky to itself</li>
+                  <li>1 point per 2 kg of extra fuel</li>
+                  <li>1000 points per collision</li>
+                  <li>2000 points per flight that never finishes</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="iframe console-frame">
+          <div class="titlebar"><span class="ico"></span><span class="ttl">Console</span><span class="grip"></span>
+            <label class="tchk"><input type="checkbox" id="conMine"> My output only</label>
+            <span class="wbtn min"></span><span class="wbtn max"></span></div>
+          <div class="fbody">
+            <div class="tabs" role="tablist">
+              <button type="button" class="tab2" role="tab" data-btab="console" aria-selected="true">Output</button>
+              <button type="button" class="tab2" role="tab" data-btab="coach" aria-selected="false">Coach</button>
+              <button type="button" class="btn tabs-end" id="conClear" title="Empty the Output tab">Clear console</button>
+            </div>
+            <div class="bpanes">
+              <div id="console" class="bpane active" role="log" aria-live="off"></div>
+              <div id="coach" class="bpane">
+                <div id="coachLog" role="log" aria-live="polite"></div>
+                <form id="coachForm">
+                  <textarea id="coachInput" rows="2" maxlength="3000" placeholder="Ask the coach about your tower. It can see your code and the console." aria-label="Question for the coach"></textarea>
+                  <div class="coach-btns">
+                    <button type="submit" class="btn" id="coachSend">Ask</button>
+                    <button type="button" class="btn" id="coachNew">New chat</button>
+                    <span id="coachLeft"></span>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div id="status">Applet started.</div>
+      <div id="statusBest">Best: none</div>
+    </div>
+
+    <div class="dialog-veil" id="dialogVeil">
+      <div class="iframe dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+        <div class="titlebar"><span class="ico"></span><span class="ttl" id="dialogTitle">Message</span><span class="grip"></span></div>
+        <div class="dbody" id="dialogBody"></div>
+        <div class="dfoot"><button type="button" class="btn" id="dialogOk">OK</button><button type="button" class="btn" id="dialogCancel" hidden>Cancel</button></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/acorn/8.11.3/acorn.min.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/sandbox.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

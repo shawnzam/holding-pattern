@@ -1,0 +1,27 @@
+{
+  // Holding Pattern on Cloudflare Workers. Deploy with: npm run deploy
+  "name": "tower-game",
+  "main": "worker/index.mjs",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // The public address. The domain must be on the same Cloudflare account.
+  "routes": [{ "pattern": "holdingpattern.dev", "custom_domain": true }],
+
+  // Only dist/ is published. scripts/build-site.mjs fills it with index.html, css/ and js/.
+  "build": { "command": "node scripts/build-site.mjs" },
+  "assets": { "directory": "./dist", "binding": "ASSETS" },
+
+  // Counts coach questions and spend.
+  "durable_objects": { "bindings": [{ "name": "METER", "class_name": "CoachMeter" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CoachMeter"] }],
+
+  // Coach limits. The API key is a secret, not a var:  npx wrangler secret put CLAUDE_API_KEY
+  "vars": {
+    "COACH_PER_IP_DAY": "100",
+    "COACH_DAILY_USD": "1",
+    "COACH_BUDGET_USD": "20"
+  },
+
+  "observability": { "enabled": true }
+}

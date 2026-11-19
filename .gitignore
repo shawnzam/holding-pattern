@@ -1,0 +1,10 @@
+.env
+node_modules/
+.coach-usage.json
+dist/
+.wrangler/
+.dev.vars
+
+# Working answers to the assignments. Kept locally for npm test, never published.
+solutions/
+test/solutions.js
