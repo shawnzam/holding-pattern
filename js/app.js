@@ -1105,6 +1105,7 @@
         '<p>Your code runs in a sandboxed worker inside this browser tab and is saved only on this computer.</p>' +
         '<p>Made by <a href="https://zamechek.com/" target="_blank" rel="noopener">Shawn Zamechek</a></p>' +
         '<p>Adapted from an assignment created by Chris Murphy for Penn\'s <a href="https://www.cis.upenn.edu/mcit/" target="_blank" rel="noopener">MCIT</a> program, summer 2013.</p>' +
+      '<p>Open source, MIT license: <a href="https://github.com/shawnzam/holding-pattern" target="_blank" rel="noopener">source on GitHub</a></p>' +
         '<p><button type="button" class="btn" id="wipeBtn">Erase saved data</button></p>');
       $('wipeBtn').addEventListener('click', function () {
         if ($('wipeBtn').dataset.armed) { wipe(); return; }
